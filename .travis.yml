@@ -1,7 +1,11 @@
-osx_image: xcode9.3beta
+os: osx
+osx_image: 
+  - xcode12.5 
 language: objective-c
 xcode_project: Criollo.xcodeproj
-
-script: ./build.sh
-
-
+script: 
+  - ./.scripts/build.sh
+  - ./.scripts/tests.sh
+  - ./.scripts/analyze.sh
+  - ./.scripts/apps.sh
+  - ./.scripts/examples.sh
