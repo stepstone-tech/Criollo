@@ -6,13 +6,9 @@
 //  Copyright © 2015 Cătălin Stan. All rights reserved.
 //
 
-#import <Criollo/CRResponse.h>
-
-/// Initial size of the response body data object
-FOUNDATION_EXPORT NSUInteger const CRResponseDataInitialCapacity;
+#import "CRResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
 @interface CRResponse ()
 
 @property (nonatomic, assign) NSUInteger proposedStatusCode;
@@ -23,6 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) BOOL finished;
 @property (nonatomic, readonly) BOOL hasWrittenBodyData;
 
+- (instancetype)initWithConnection:(CRConnection *)connection HTTPStatusCode:(NSUInteger)HTTPStatusCode;
+- (instancetype)initWithConnection:(CRConnection *)connection HTTPStatusCode:(NSUInteger)HTTPStatusCode description:(NSString * _Nullable)description;
 - (instancetype)initWithConnection:(CRConnection *)connection HTTPStatusCode:(NSUInteger)HTTPStatusCode description:(NSString * _Nullable)description version:(CRHTTPVersion)version NS_DESIGNATED_INITIALIZER;
 
 - (void)writeData:(NSData *)data finish:(BOOL)flag;
@@ -31,5 +29,4 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)buildHeaders;
 
 @end
-
 NS_ASSUME_NONNULL_END

@@ -2,9 +2,9 @@
 
 [![Criollo](https://criollo.io/res/doc/images/criollo-github.png)](https://criollo.io/)
 
-#### A powerful Cocoa web framework and HTTP server for macS, iOS and tvOS.
+#### A powerful Cocoa based web application framework for macOS, iOS and tvOS.
 
-[![Build Status](https://travis-ci.com/thecatalinstan/Criollo.svg?branch=master)](https://travis-ci.com/thecatalinstan/Criollo) [![Version Status](https://img.shields.io/cocoapods/v/Criollo.svg?style=flat)](http://cocoadocs.org/docsets/Criollo)  [![Platform](http://img.shields.io/cocoapods/p/Criollo.svg?style=flat)](http://cocoapods.org/?q=Criollo) [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage) [![MIT License](https://img.shields.io/badge/license-MIT-orange.svg?style=flat)](https://opensource.org/licenses/MIT) [![Twitter](https://img.shields.io/badge/twitter-@criolloio-orange.svg?style=flat)](http://twitter.com/Criolloio) [![Gitter](https://img.shields.io/gitter/room/criollo-io/Lobby.svg?style=flat)](https://gitter.im/criollo-io/Lobby)
+[![Build Status](https://travis-ci.org/thecatalinstan/Criollo.svg?branch=master)](https://travis-ci.org/thecatalinstan/Criollo) [![Version Status](https://img.shields.io/cocoapods/v/Criollo.svg?style=flat)](http://cocoadocs.org/docsets/Criollo)  [![Platform](http://img.shields.io/cocoapods/p/Criollo.svg?style=flat)](http://cocoapods.org/?q=Criollo) [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage) [![MIT License](https://img.shields.io/badge/license-MIT-orange.svg?style=flat)](https://opensource.org/licenses/MIT) [![Twitter](https://img.shields.io/badge/twitter-@criolloio-orange.svg?style=flat)](http://twitter.com/Criolloio) [![Gitter](https://img.shields.io/gitter/room/criollo-io/Lobby.svg?style=flat)](https://gitter.im/criollo-io/Lobby)
 
 
 Criollo helps create fast standalone or embedded web apps that deliver content directly over HTTP or FastCGI. You can write code in Swift or Objective-C and you can use the Cocoa technologies you already know. 
@@ -46,11 +46,11 @@ server.password = "123456"
 
 // Credentials: PEM-encoded certificate and public key
 server.certificatePath = Bundle.main.path(forResource: "certificate", ofType: "pem")
-server.privateKeyPath = Bundle.main.path(forResource: "key", ofType: "pem")
+server.certificateKeyPath = Bundle.main.path(forResource: "key", ofType: "pem")
 
 // Credentials: DER-encoded certificate and public key
 server.certificatePath = Bundle.main.path(forResource: "certificate", ofType: "der")
-server.privateKeyPath = Bundle.main.path(forResource: "key", ofType: "der")
+server.certificateKeyPath = Bundle.main.path(forResource: "key", ofType: "der")
 ```
 
 ... and in Objective-C:
@@ -64,11 +64,11 @@ server.password = @"password";
         
 // Credentials: PEM-encoded certificate and public key
 server.certificatePath = [NSBundle.mainBundle pathForResource:@"certificate" ofType:@"pem"];
-server.privateKeyPath = [NSBundle.mainBundle pathForResource:@"key" ofType:@"pem"];
+server.certificateKeyPath = [NSBundle.mainBundle pathForResource:@"key" ofType:@"pem"];
         
 // Credentials: DER-encoded certificate and public key
 server.certificatePath = [NSBundle.mainBundle pathForResource:@"certificate" ofType:@"der"];
-server.privateKeyPath = [NSBundle.mainBundle pathForResource:@"key" ofType:@"der"];
+server.certificateKeyPath = [NSBundle.mainBundle pathForResource:@"key" ofType:@"der"];
 ```
 
 ### Routing
@@ -311,7 +311,7 @@ The preferred way of installing Criollo is through [CocoaPods](http://cocoapods.
 ### Installing with CocoaPods
 
 1. Create the `Podfile` if you don’t already have one. You can do so by running `pod init` in the folder of the project.
-2. Add Criollo to your `Podfile`. `pod 'Criollo', '~> 0.5'`
+2. Add Criollo to your `Podfile`. `pod 'Criollo', '~> 0.4’`
 3. Run `pod install`
 
 Please note that Criollo will download [CocoaAsyncSocket](https://github.com/robbiehanson/CocoaAsyncSocket) as a dependency.

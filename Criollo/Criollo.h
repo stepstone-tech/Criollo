@@ -28,6 +28,4 @@
 #import <Criollo/CRView.h>
 #import <Criollo/CRViewController.h>
 
-#import <Criollo/CRStaticFileManager.h>
-#import <Criollo/CRStaticDirectoryManager.h>
 #import <Criollo/CRMimeTypeHelper.h>

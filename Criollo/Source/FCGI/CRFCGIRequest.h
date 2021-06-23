@@ -6,7 +6,9 @@
 //  Copyright © 2015 Cătălin Stan. All rights reserved.
 //
 
-#import <Criollo/CRRequest.h>
+#import "CRRequest.h"
+
+#define CRFCGIRequestFlagKeepAlive   1
 
 typedef NS_ENUM(UInt8, CRFCGIRequestRole) {
     CRFCGIRequestRoleResponder = 1,
@@ -14,9 +16,7 @@ typedef NS_ENUM(UInt8, CRFCGIRequestRole) {
     CRFCGIRequestRoleFilter = 3
 };
 
-typedef NS_OPTIONS(NSUInteger, CRFCGIRequestFlags) {
-    CRFCGIRequestFlagKeepAlive = 1 << 0,
-};
+typedef UInt8  CRFCGIRequestFlags;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -29,5 +29,4 @@ FOUNDATION_EXPORT NSString * NSStringFromCRFCGIRequestRole(CRFCGIRequestRole req
 @property (nonatomic, assign) CRFCGIRequestFlags requestFlags;
 
 @end
-
 NS_ASSUME_NONNULL_END

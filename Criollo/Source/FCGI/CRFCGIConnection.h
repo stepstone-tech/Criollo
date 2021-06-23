@@ -6,12 +6,13 @@
 //  Copyright © 2015 Cătălin Stan. All rights reserved.
 //
 
-#import <Criollo/CRConnection.h>
+#import "CRConnection.h"
 
-NS_ASSUME_NONNULL_BEGIN
+#define CRFCGIConnectionSocketTagReadRecordHeader                       11
+#define CRFCGIConnectionSocketTagReadRecordContent                      12
+
+#define CRFCGIConnectionSocketTagSendingResponse                        20
 
 @interface CRFCGIConnection : CRConnection
 
 @end
-
-NS_ASSUME_NONNULL_END

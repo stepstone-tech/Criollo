@@ -25,5 +25,3 @@ Docs
 Pods
 Podfile.lock
 Examples/*/*.xcworkspace
-
-.build

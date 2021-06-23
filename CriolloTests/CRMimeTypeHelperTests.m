@@ -77,4 +77,20 @@
     XCTAssertTrue([type isEqualToString:expectedType], @"Unknown files should return %@", expectedType);
 }
 
+
+
+- (void)testSharedHelperInstantiationPerformance {
+    [self measureBlock:^{
+        [CRMimeTypeHelper sharedHelper];
+    }];
+}
+
+- (void)testMimeTypeForFileAtPathPerformance {
+    CRMimeTypeHelper *helper = [CRMimeTypeHelper new];
+    NSString *path = [self pathForSampleFile:@"random.random"];
+    [self measureBlock:^{
+        [helper mimeTypeForFileAtPath:path];
+    }];
+}
+
 @end

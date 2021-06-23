@@ -5,7 +5,9 @@
 //  Created by Cătălin Stan on 11/20/15.
 //  Copyright © 2015 Cătălin Stan. All rights reserved.
 //
-#import <Foundation/Foundation.h>
+
+#define CRPathSeparator                     @"/"
+#define CRPathAnyPath                       @"*"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -44,7 +46,7 @@ typedef NS_ENUM(NSUInteger, CRHTTPMethod) {
      */
     CRHTTPMethodGet,
     /**
-     *  The POST HTTP request method. (POST)
+     *  The POST HTTP request method. (Post)
      */
     CRHTTPMethodPost,
     /**
@@ -158,7 +160,3 @@ typedef NS_ENUM(NSUInteger, CRStaticFileContentDisposition) {
 };
 
 NS_ASSUME_NONNULL_END
-
-#define CR_OBJC_ABSTRACT {\
-    @throw [NSException exceptionWithName:NSInternalInconsistencyException reason:[NSString stringWithFormat:@"%s must be implemented in a subclass.", __PRETTY_FUNCTION__] userInfo:nil];\
-}

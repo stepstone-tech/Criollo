@@ -6,13 +6,11 @@
 //  Copyright © 2016 Cătălin Stan. All rights reserved.
 //
 
-#import <Criollo/CRUploadedFile.h>
-
-#import <Criollo/CRApplication.h>
-#import <Criollo/CRMimeTypeHelper.h>
-#import <Criollo/CRRequest.h>
-
+#import "CRUploadedFile.h"
 #import "CRUploadedFile_Internal.h"
+#import "CRApplication.h"
+#import "CRMimeTypeHelper.h"
+#import "CRRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -81,6 +79,7 @@ NS_ASSUME_NONNULL_END
 }
 
 - (void)finishWriting {
+
     [self.fileWriteStream close];
     self.fileWriteStream = nil;
 

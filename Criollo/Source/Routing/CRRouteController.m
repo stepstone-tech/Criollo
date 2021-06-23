@@ -6,16 +6,14 @@
 //  Copyright © 2016 Cătălin Stan. All rights reserved.
 //
 
-#import <Criollo/CRRouteController.h>
-
-#import <Criollo/CRRequest.h>
-#import <Criollo/CRResponse.h>
-
-#import "CRRequest_Internal.h"
-#import "CRResponse_Internal.h"
-#import "CRRoute.h"
-#import "CRRouteMatchingResult.h"
+#import "CRRouteController.h"
 #import "CRRouter_Internal.h"
+#import "CRRoute.h"
+#import "CRRequest.h"
+#import "CRRequest_Internal.h"
+#import "CRResponse.h"
+#import "CRResponse_Internal.h"
+#import "CRRouteMatchingResult.h"
 #import "NSString+Criollo.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -29,7 +27,7 @@ NS_ASSUME_NONNULL_END
 @implementation CRRouteController
 
 - (instancetype)init {
-    return [self initWithPrefix:CRRoutePathSeparator];
+    return [self initWithPrefix:CRPathSeparator];
 }
 
 - (instancetype)initWithPrefix:(NSString *)prefix {
@@ -41,9 +39,9 @@ NS_ASSUME_NONNULL_END
         _routeBlock = ^(CRRequest *request, CRResponse *response, CRRouteCompletionBlock completionHandler) {
             @autoreleasepool {
                 NSString* requestedPath = request.env[@"DOCUMENT_URI"];
-                NSString* requestedRelativePath = [requestedPath pathRelativeToPath:controller.prefix separator:CRRoutePathSeparator];
+                NSString* requestedRelativePath = [requestedPath pathRelativeToPath:controller.prefix];
                 NSArray<CRRouteMatchingResult *>* routes = [controller routesForPath:requestedRelativePath method:request.method];
-                [controller executeRoutes:routes request:request response:response withCompletion:completionHandler];
+                [controller executeRoutes:routes forRequest:request response:response withCompletion:completionHandler];
             }
         };
     }

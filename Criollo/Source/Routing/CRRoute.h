@@ -6,14 +6,11 @@
 //  Copyright © 2015 Cătălin Stan. All rights reserved.
 //
 
-#import <Criollo/CRTypes.h>
-#import <Foundation/Foundation.h>
+#import "CRTypes.h"
 
 @class CRRequest, CRResponse;
 
 NS_ASSUME_NONNULL_BEGIN
-
-FOUNDATION_EXPORT NSString * const CRRoutePathSeparator;
 
 @interface CRRoute : NSObject
 
