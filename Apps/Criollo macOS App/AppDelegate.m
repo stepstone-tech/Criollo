@@ -15,7 +15,7 @@
 
 #define PortNumber          10781
 #define LogConnections          0
-#define LogRequests             0
+#define LogRequests             1
 #define HTTPS                   0
 #define HTTPS_PKS12             0
 #define HTTPS_PEM               0
@@ -53,11 +53,11 @@ NS_ASSUME_NONNULL_END
 #elif HTTPS_PEM
         // Credentials: PEM-encoded certificate and public key
         server.certificatePath = [NSBundle.mainBundle pathForResource:@"cert" ofType:@"pem"];
-        server.certificateKeyPath = [NSBundle.mainBundle pathForResource:@"key" ofType:@"pem"];
+        server.privateKeyPath = [NSBundle.mainBundle pathForResource:@"key" ofType:@"pem"];
 #elif HTTPS_DER
         // Credentials: DER-encoded certificate and public key
         server.certificatePath = [NSBundle.mainBundle pathForResource:@"cert" ofType:@"der"];
-        server.certificateKeyPath = [NSBundle.mainBundle pathForResource:@"key" ofType:@"der"];
+        server.privateKeyPath = [NSBundle.mainBundle pathForResource:@"key" ofType:@"der"];
 #endif
     }
 #endif
@@ -125,17 +125,31 @@ NS_ASSUME_NONNULL_END
     // MIME
     NSURL *uploadURL = [NSURL URLWithString:[NSString stringWithFormat:@"http%@://%@:%d/mime-response", ((CRHTTPServer *)self.server).isSecure ? @"s" : @"", [SystemInfoHelper IPAddress] ? : @"127.0.0.1", PortNumber]];
     [self.server add:@"/mime" block:^(CRRequest * _Nonnull request, CRResponse * _Nonnull response, CRRouteCompletionBlock  _Nonnull completionHandler) {
-
         // Send a mime encoded request to "/mime-response" and display the output of that page here :)
-
-        NSString* file = @"~/Desktop/mimeFile";
+        NSString* file = request.query[@"path"];
         NSError* dataReadingError;
-        NSData* data = [NSData dataWithContentsOfFile:file.stringByStandardizingPath options:0 error:&dataReadingError];
+        NSData* data;
+        @try {
+            data = [NSData dataWithContentsOfFile:file.stringByStandardizingPath options:NSDataReadingMappedIfSafe error:&dataReadingError];
+        } @catch (NSException *exception) {
+            NSMutableDictionary<NSErrorUserInfoKey, id> *info = [NSMutableDictionary dictionaryWithCapacity:3];
+            info[NSLocalizedDescriptionKey] = @"Unhandled exception.";
+            info[NSUnderlyingErrorKey] = [NSString stringWithFormat: @"%@ %@\n\n%@", exception.name, exception.reason, [exception.callStackSymbols componentsJoinedByString:@"\n"]];
+            dataReadingError = [[NSError alloc] initWithDomain:[NSBundle.mainBundle.bundleIdentifier stringByAppendingPathExtension:@"error"] code:0 userInfo:info];
+        }
 
         if ( dataReadingError ) {
             [response setValue:@"text/plain" forHTTPHeaderField:@"Content-type"];
-            [response setValue:@(dataReadingError.description.length).stringValue forHTTPHeaderField:@"Content-length"];
-            [response sendString:dataReadingError.description];
+            [response writeFormat:@"%@ %lu\n", dataReadingError.domain, (unsigned long)dataReadingError.code];
+            [response writeFormat:@"%@\n\n", dataReadingError.localizedDescription];
+            [dataReadingError.userInfo enumerateKeysAndObjectsUsingBlock:^(NSErrorUserInfoKey  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+                if ([key isEqualToString:NSLocalizedDescriptionKey]) {
+                    return;
+                }
+                
+                [response writeFormat:@"%@:\n%@\n\n", key, obj];
+            }];
+            [response finish];
             return;
         }
 
@@ -186,7 +200,7 @@ NS_ASSUME_NONNULL_END
         [response write:@"<body>"];
         [response write:@"<h2>Mime</h2>"];
         [response write:@"<form action=\"\" method=\"post\" enctype=\"multipart/form-data\">"];
-        [response write:@"<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"67108864\" />"];
+        [response write:@"<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"6710886400\" />"];
         [response write:@"<div><label>File: </label><input type=\"file\" name=\"file1\" /></div>"];
         [response write:@"<div><label>Text: </label><input type=\"text\" name=\"text1\" /></div>"];
         [response write:@"<div><label>Check: </label><input type=\"checkbox\" name=\"checkbox1\" value=\"1\" /></div>"];
@@ -249,19 +263,16 @@ NS_ASSUME_NONNULL_END
 }
 
 - (CRApplicationTerminateReply)applicationShouldTerminate:(CRApplication *)sender {
-    static CRApplicationTerminateReply reply;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        reply = CRTerminateLater;
-        [self.server closeAllConnections:^{
-            reply = CRTerminateNow;
-        }];
-    });
-    return reply;
+    [CRApp logFormat:@"%s", __PRETTY_FUNCTION__];
+    [self.server closeAllConnections:^{
+        [self.server stopListening];
+        [sender replyToApplicationShouldTerminate:CRTerminateNow];
+    }];
+    return CRTerminateLater;
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
-    [self.server stopListening];
+    [CRApp logFormat:@"%s", __PRETTY_FUNCTION__];
 }
 
 - (void)startServer {
@@ -298,6 +309,22 @@ NS_ASSUME_NONNULL_END
         [CRApp logErrorFormat:@"%@ Failed to start HTTP server. %@", [NSDate date], serverError.localizedDescription];
         [CRApp terminate:nil];
     }
+}
+
+- (void)serverWillStartListening:(CRServer *)server {
+    [CRApp logFormat:@"%s", __PRETTY_FUNCTION__];
+}
+
+- (void)serverDidStartListening:(CRServer *)server {
+    [CRApp logFormat:@"%s", __PRETTY_FUNCTION__];
+}
+
+- (void)serverWillStopListening:(CRServer *)server {
+    [CRApp logFormat:@"%s", __PRETTY_FUNCTION__];
+}
+
+- (void)serverDidStopListening:(CRServer *)server {
+    [CRApp logFormat:@"%s", __PRETTY_FUNCTION__];
 }
 
 #if LogConnections

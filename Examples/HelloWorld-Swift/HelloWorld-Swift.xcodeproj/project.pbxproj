@@ -12,7 +12,6 @@
 		ADAEE9BE1BFA80630034819C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD57A6F81BFA6E5300815942 /* AppDelegate.swift */; };
 		ADAEE9BF1BFA80670034819C /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF1D88E1BFA6F17002CCFD6 /* main.swift */; };
 		ADD8F6DE1C6CCE37004DDF54 /* style.css in Public Resources */ = {isa = PBXBuildFile; fileRef = ADD8F6DA1C6CCD68004DDF54 /* style.css */; };
-		FDF113A5F19BC10B54D42F3F /* Pods_HelloWorld_Swift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C2A3414820E65D18F7636FE /* Pods_HelloWorld_Swift.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -40,9 +39,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		0C1077D453B41BDBF4DAF312 /* Pods-HelloWorld-Swift.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HelloWorld-Swift.release.xcconfig"; path = "Pods/Target Support Files/Pods-HelloWorld-Swift/Pods-HelloWorld-Swift.release.xcconfig"; sourceTree = "<group>"; };
-		1C2A3414820E65D18F7636FE /* Pods_HelloWorld_Swift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HelloWorld_Swift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		73CFBA4DF1C74C1642F73A2C /* Pods-HelloWorld-Swift.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HelloWorld-Swift.debug.xcconfig"; path = "Pods/Target Support Files/Pods-HelloWorld-Swift/Pods-HelloWorld-Swift.debug.xcconfig"; sourceTree = "<group>"; };
 		AD57A6F81BFA6E5300815942 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AD57A6FF1BFA6E5300815942 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ADA0B5D91C03E52C009259C5 /* HelloWorldViewController.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = HelloWorldViewController.html; sourceTree = "<group>"; };
@@ -57,22 +53,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FDF113A5F19BC10B54D42F3F /* Pods_HelloWorld_Swift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		4F0A843B3512ED718F899704 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				73CFBA4DF1C74C1642F73A2C /* Pods-HelloWorld-Swift.debug.xcconfig */,
-				0C1077D453B41BDBF4DAF312 /* Pods-HelloWorld-Swift.release.xcconfig */,
-			);
-			name = Pods;
-			sourceTree = "<group>";
-		};
 		AD57A6F71BFA6E5300815942 /* HelloWorld-Swift */ = {
 			isa = PBXGroup;
 			children = (
@@ -91,8 +77,6 @@
 			children = (
 				AD57A6F71BFA6E5300815942 /* HelloWorld-Swift */,
 				ADC331DF1BF0FF4100DFCF6B /* Products */,
-				4F0A843B3512ED718F899704 /* Pods */,
-				D4F48E10D7880EF4A9DADEBE /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -112,14 +96,6 @@
 			path = Public;
 			sourceTree = "<group>";
 		};
-		D4F48E10D7880EF4A9DADEBE /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				1C2A3414820E65D18F7636FE /* Pods_HelloWorld_Swift.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -127,14 +103,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = ADAEE9B21BFA7A4B0034819C /* Build configuration list for PBXNativeTarget "HelloWorld-Swift" */;
 			buildPhases = (
-				6EC7292321231801059ED678 /* [CP] Check Pods Manifest.lock */,
 				ADAEE9A41BFA7A4B0034819C /* Sources */,
 				ADAEE9A51BFA7A4B0034819C /* Frameworks */,
 				ADAEE9A61BFA7A4B0034819C /* Resources */,
 				ADAEE9B91BFA7AA00034819C /* Embed Frameworks */,
 				ADD8F6DD1C6CCE1D004DDF54 /* Public Resources */,
-				5CA486A64F5DE9AA1DD169F2 /* [CP] Embed Pods Frameworks */,
-				FA53E73EF16659676697FB3D /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -152,17 +125,18 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0710;
-				LastUpgradeCheck = 0900;
+				LastUpgradeCheck = 1240;
 				TargetAttributes = {
 					ADAEE9A71BFA7A4B0034819C = {
 						CreatedOnToolsVersion = 7.1.1;
+						LastSwiftMigration = 1140;
 						ProvisioningStyle = Manual;
 					};
 				};
 			};
 			buildConfigurationList = ADC331CE1BF0FEE300DFCF6B /* Build configuration list for PBXProject "HelloWorld-Swift" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
@@ -189,64 +163,6 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		5CA486A64F5DE9AA1DD169F2 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-HelloWorld-Swift/Pods-HelloWorld-Swift-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/CSSystemInfoHelper/CSSystemInfoHelper.framework",
-				"${BUILT_PRODUCTS_DIR}/CocoaAsyncSocket/CocoaAsyncSocket.framework",
-				"${BUILT_PRODUCTS_DIR}/Criollo/Criollo.framework",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CSSystemInfoHelper.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CocoaAsyncSocket.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Criollo.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-HelloWorld-Swift/Pods-HelloWorld-Swift-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		6EC7292321231801059ED678 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-HelloWorld-Swift-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		FA53E73EF16659676697FB3D /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-HelloWorld-Swift/Pods-HelloWorld-Swift-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		ADAEE9A41BFA7A4B0034819C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -263,7 +179,6 @@
 /* Begin XCBuildConfiguration section */
 		ADAEE9B31BFA7A4B0034819C /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 73CFBA4DF1C74C1642F73A2C /* Pods-HelloWorld-Swift.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -307,12 +222,12 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
 		ADAEE9B41BFA7A4B0034819C /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0C1077D453B41BDBF4DAF312 /* Pods-HelloWorld-Swift.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -350,22 +265,27 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "io.criollo.examples.HelloWorld-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
 		ADC331CF1BF0FEE300DFCF6B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -388,16 +308,20 @@
 		ADC331D01BF0FEE300DFCF6B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;

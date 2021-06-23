@@ -6,14 +6,17 @@
 //  Copyright © 2015 Cătălin Stan. All rights reserved.
 //
 
+#import "CRHTTPResponse.h"
+
+#import <Criollo/CRHTTPServer.h>
+
+#import "CocoaAsyncSocket.h"
+#import "CRConnection_Internal.h"
+#import "CRHTTPConnection.h"
+#import "CRHTTPServerConfiguration.h"
 #import "CRMessage_Internal.h"
 #import "CRResponse_Internal.h"
-#import "CRHTTPResponse.h"
-#import "CRHTTPConnection.h"
-#import "CRConnection_Internal.h"
-#import "CRHTTPServer.h"
-#import "CRHTTPServerConfiguration.h"
-#import "GCDAsyncSocket.h"
+#import "NSData+CRLF.h"
 #import "NSDate+RFC1123.h"
 
 @interface CRHTTPResponse ()
@@ -69,8 +72,8 @@
 
     if ( self.isChunked ) {
         // Chunk size + CRLF
-        [dataToSend appendData: [[NSString stringWithFormat:@"%lx", (unsigned long)data.length] dataUsingEncoding:NSUTF8StringEncoding]];
-        [dataToSend appendData: [CRConnection CRLFData]];
+        [dataToSend appendData:[[NSString stringWithFormat:@"%lx", (unsigned long)data.length] dataUsingEncoding:NSUTF8StringEncoding]];
+        [dataToSend appendData:NSData.CRLF];
     }
 
     // The actual data
@@ -78,12 +81,12 @@
 	
     if ( self.isChunked ) {
         // Chunk termination
-        [dataToSend appendData: [CRConnection CRLFData]];
+        [dataToSend appendData: NSData.CRLF];
     }
 
     if ( flag && self.isChunked ) {
         [dataToSend appendData: [@"0" dataUsingEncoding:NSUTF8StringEncoding]];
-        [dataToSend appendData:[CRConnection CRLFCRLFData]];
+        [dataToSend appendData:NSData.CRLFCRLF];
     }
 
     [super writeData:dataToSend finish:flag];
@@ -93,15 +96,18 @@
     [super finish];
 
     NSMutableData* dataToSend = [self initialResponseData];
-    if ( self.isChunked ) {
-        [dataToSend appendData: [@"0\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+    NSData *terminator;
+    if (self.isChunked) {
+        terminator = NSData.zeroCRLFCRLF;
     } else {
-        [dataToSend appendData: [@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+        terminator = NSData.CRLF;
     }
-
-    [self.connection sendDataToSocket:dataToSend forRequest:self.request];
+    [dataToSend appendData:terminator];
+    
+    [self.connection sendData:dataToSend request:self.request];
 }
 
+//TODO: Move to CRResponse
 - (NSMutableData*)initialResponseData {
     NSMutableData* dataToSend = [NSMutableData dataWithCapacity:CRResponseDataInitialCapacity];
 
