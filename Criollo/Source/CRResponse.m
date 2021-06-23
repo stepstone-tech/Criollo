@@ -6,23 +6,18 @@
 //  Copyright (c) 2014 Catalin Stan. All rights reserved.
 //
 
-#import <Criollo/CRResponse.h>
-
-#import <Criollo/CRApplication.h>
-#import <Criollo/CRConnection.h>
-#import <Criollo/CRRequest.h>
-#import <Criollo/CRServer.h>
-
-#import "CocoaAsyncSocket.h"
-#import "CRConnection_Internal.h"
 #import "CRMessage_Internal.h"
+#import "CRResponse.h"
 #import "CRResponse_Internal.h"
+#import "CRApplication.h"
+#import "CRServer.h"
 #import "CRServerConfiguration.h"
-#import "NSData+CRLF.h"
+#import "CRConnection.h"
+#import "CRConnection_Internal.h"
+#import "CRRequest.h"
+#import "GCDAsyncSocket.h"
 #import "NSDate+RFC1123.h"
 #import "NSHTTPCookie+Criollo.h"
-
-NSUInteger const CRResponseDataInitialCapacity = 1<<16;
 
 @interface CRResponse ()
 
@@ -32,11 +27,23 @@ NSUInteger const CRResponseDataInitialCapacity = 1<<16;
 
 @implementation CRResponse
 
+- (instancetype)init {
+    return [self initWithConnection:[CRConnection new] HTTPStatusCode:200 description:nil version:CRHTTPVersion1_1];
+}
+
+- (instancetype)initWithConnection:(CRConnection*)connection HTTPStatusCode:(NSUInteger)HTTPStatusCode {
+    return [self initWithConnection:connection HTTPStatusCode:HTTPStatusCode description:nil version:CRHTTPVersion1_1];
+}
+
+- (instancetype)initWithConnection:(CRConnection*)connection HTTPStatusCode:(NSUInteger)HTTPStatusCode description:(NSString *)description {
+    return [self initWithConnection:connection HTTPStatusCode:HTTPStatusCode description:description version:CRHTTPVersion1_1];
+}
+
 - (instancetype)initWithConnection:(CRConnection*)connection HTTPStatusCode:(NSUInteger)HTTPStatusCode description:(NSString *)description version:(CRHTTPVersion)version {
     self  = [super init];
     if ( self != nil ) {
         self.message = CFBridgingRelease(CFHTTPMessageCreateResponse(NULL, (CFIndex)HTTPStatusCode, (__bridge CFStringRef)description, (__bridge CFStringRef)NSStringFromCRHTTPVersion(version)));
-        _connection = connection;
+        self.connection = connection;
         _statusDescription = description;
         _HTTPCookies = [NSMutableDictionary dictionary];
     }
@@ -170,11 +177,11 @@ NSUInteger const CRResponseDataInitialCapacity = 1<<16;
 }
 
 - (void)writeData:(NSData *)data finish:(BOOL)flag {
-    if (flag) {
+    if ( flag ) {
         _finished = YES;
     }
     _hasWrittenBodyData = YES;
-    [self.connection sendData:data request:self.request];
+    [self.connection sendDataToSocket:data forRequest:self.request];
 }
 
 #pragma mark - Output processing
@@ -216,8 +223,8 @@ NSUInteger const CRResponseDataInitialCapacity = 1<<16;
     CFHTTPMessageRef newMessage = CFHTTPMessageCreateResponse(NULL, (CFIndex)self.proposedStatusCode, (__bridge CFStringRef)self.proposedStatusDescription, (__bridge CFStringRef) NSStringFromCRHTTPVersion(self.version));
 
     NSData* currentMessageData = self.serializedData;
-    NSRange rangeOfFirstCRLF = [currentMessageData rangeOfData:NSData.CRLF options:0 range:NSMakeRange(0, currentMessageData.length)];
-    NSData* currentMessageDataExcludingFirstLine = [currentMessageData subdataWithRange:NSMakeRange(rangeOfFirstCRLF.location + NSData.CRLF.length, currentMessageData.length - rangeOfFirstCRLF.location - NSData.CRLF.length)];
+    NSRange rangeOfFirstCRLF = [currentMessageData rangeOfData:[CRConnection CRLFData] options:0 range:NSMakeRange(0, currentMessageData.length)];
+    NSData* currentMessageDataExcludingFirstLine = [currentMessageData subdataWithRange:NSMakeRange(rangeOfFirstCRLF.location + [CRConnection CRLFData].length, currentMessageData.length - rangeOfFirstCRLF.location - [CRConnection CRLFData].length)];
 
     self.message = CFBridgingRelease(newMessage);
     CFHTTPMessageAppendBytes((__bridge CFHTTPMessageRef)self.message, currentMessageDataExcludingFirstLine.bytes, currentMessageDataExcludingFirstLine.length);

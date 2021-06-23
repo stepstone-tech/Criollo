@@ -6,10 +6,9 @@
 //  Copyright © 2016 Cătălin Stan. All rights reserved.
 //
 
-#import <Criollo/CRRequestRange.h>
+#import "CRRequestRange.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
 @interface CRRequestByteRange ()
 
 - (instancetype)initWithByteRangeSpec:(NSString *)byteRangeSpec NS_DESIGNATED_INITIALIZER;
@@ -23,5 +22,4 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithRangesSpecifier:(NSString *)rangesSpecifier NS_DESIGNATED_INITIALIZER;
 
 @end
-
 NS_ASSUME_NONNULL_END

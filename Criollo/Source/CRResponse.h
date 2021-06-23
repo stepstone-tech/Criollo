@@ -6,14 +6,16 @@
 //  Copyright (c) 2014 Catalin Stan. All rights reserved.
 //
 
-#import <Criollo/CRMessage.h>
+#import "CRMessage.h"
+
+// Initial size of the response body data object
+#define CRResponseDataInitialCapacity       (1 * 64 * 1024)
 
 @class CRRequest, CRConnection;
 
-NS_ASSUME_NONNULL_BEGIN
-
 @interface CRResponse : CRMessage
 
+NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak, nullable) CRConnection *connection;
 @property (nonatomic, weak, nullable) CRRequest *request;
 
@@ -52,9 +54,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)redirectToLocation:(NSString *)location statusCode:(NSUInteger)statusCode finish:(BOOL)finish;
 
 - (void)finish;
-
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
 
 @end
 

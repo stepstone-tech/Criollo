@@ -6,9 +6,8 @@
 //  Copyright © 2015 Cătălin Stan. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 
-#import <Criollo/CRServer.h>
+#import "CRServer.h"
 
 @class CRHTTPServerConfiguration;
 
@@ -18,10 +17,7 @@
 
 @property (nonatomic, strong, nullable) NSString *identityPath;
 @property (nonatomic, strong, nullable) NSString *password;
-
-#if SEC_OS_OSX_INCLUDES
 @property (nonatomic, strong, nullable) NSString *certificatePath;
-@property (nonatomic, strong, nullable) NSString *privateKeyPath;
-#endif
+@property (nonatomic, strong, nullable) NSString *certificateKeyPath;
 
 @end

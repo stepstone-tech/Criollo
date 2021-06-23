@@ -6,9 +6,9 @@
 //  Copyright (c) 2014 Catalin Stan. All rights reserved.
 //
 
-#import <Criollo/CRView.h>
+#import "CRView.h"
 
-static NSString * const CRViewVariableFormat = @"{{%@}}";
+#define CRViewVariableFormat @"{{%@}}"
 
 @interface CRView ()
 

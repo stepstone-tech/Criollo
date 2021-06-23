@@ -6,15 +6,12 @@
 //  Copyright (c) 2014 Catalin Stan. All rights reserved.
 //
 
-#import <Criollo/CRViewController.h>
-
-#import <Criollo/CRNib.h>
-#import <Criollo/CRRequest.h>
-#import <Criollo/CRResponse.h>
-#import <Criollo/CRView.h>
-
-#import "CRRoute.h"
+#import "CRViewController.h"
 #import "CRRouter_Internal.h"
+#import "CRView.h"
+#import "CRNib.h"
+#import "CRRequest.h"
+#import "CRResponse.h"
 #import "NSString+Criollo.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -33,7 +30,7 @@ NS_ASSUME_NONNULL_END
 
 
 - (instancetype)init {
-    return [self initWithNibName:nil bundle:nil prefix:CRRoutePathSeparator];
+    return [self initWithNibName:nil bundle:nil prefix:CRPathSeparator];
 }
 
 - (instancetype)initWithPrefix:(NSString *)prefix {
@@ -41,7 +38,7 @@ NS_ASSUME_NONNULL_END
 }
 
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    return [self initWithNibName:nibNameOrNil bundle:nibBundleOrNil prefix:CRRoutePathSeparator];
+    return [self initWithNibName:nibNameOrNil bundle:nibBundleOrNil prefix:CRPathSeparator];
 }
 
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil prefix:(NSString *)prefix {
@@ -54,9 +51,9 @@ NS_ASSUME_NONNULL_END
         CRViewController* __weak controller = self;
         self.routeBlock = ^(CRRequest *request, CRResponse *response, CRRouteCompletionBlock completionHandler) { @autoreleasepool {
             NSString* requestedPath = request.env[@"DOCUMENT_URI"];
-            NSString* requestedRelativePath = [requestedPath pathRelativeToPath:controller.prefix separator:CRRoutePathSeparator];
+            NSString* requestedRelativePath = [requestedPath pathRelativeToPath:controller.prefix];
             NSArray<CRRouteMatchingResult * >* routes = [controller routesForPath:requestedRelativePath method:request.method];
-            [controller executeRoutes:routes request:request response:response withCompletion:completionHandler notFoundBlock:^(CRRequest * _Nonnull req, CRResponse * _Nonnull res, CRRouteCompletionBlock  _Nonnull completion) { @autoreleasepool {
+            [controller executeRoutes:routes forRequest:request response:response withCompletion:completionHandler notFoundBlock:^(CRRequest * _Nonnull req, CRResponse * _Nonnull res, CRRouteCompletionBlock  _Nonnull completion) { @autoreleasepool {
                 [res setValue:@"text/html; charset=utf-8" forHTTPHeaderField:@"Content-type"];
 
                 NSString* output = [controller presentViewControllerWithRequest:req response:res];

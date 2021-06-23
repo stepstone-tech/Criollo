@@ -21,16 +21,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CRServerDelegate {
     var server:CRHTTPServer!
     var baseURL:URL!
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Create the server and add some handlers to do some work
         self.server = CRHTTPServer(delegate:self)
 
-        // Setup HTTPS
-        self.server.isSecure = true
-        
-        // Credentials: PKCS#12 Identity and password
-        self.server.identityPath = Bundle.main.path(forResource: "criollo_local", ofType: "p12")
-        self.server.password = "123456"
+//        // Setup HTTPS
+//        self.server.isSecure = true
+//        
+//        // Credentials: PKCS#12 Identity and password
+//        self.server.identityPath = Bundle.main.path(forResource: "criollo_local", ofType: "p12")
+//        self.server.password = "123456"
+//        
+//        // Credentials: PEM-encoded certificate and public key
+//        self.server.certificatePath = Bundle.main.path(forResource: "cert", ofType: "pem")
+//        self.server.certificateKeyPath = Bundle.main.path(forResource: "key", ofType: "pem")
+//        
+//        // Credentials: DER-encoded certificate and public key
+//        self.server.certificatePath = Bundle.main.path(forResource: "cert", ofType: "der")
+//        self.server.certificateKeyPath = Bundle.main.path(forResource: "key", ofType: "der")
 
         let bundle:Bundle! = Bundle.main
 
@@ -140,13 +148,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CRServerDelegate {
             self.baseURL = URL(string: "http\(self.server.isSecure ? "s" :"")://\(address):\(PortNumber)")
 
             // Log the paths we can handle
-            print("Available paths are:")
-            let paths = self.server.value(forKeyPath: "routes.path") as! NSArray as! [String?]
-            for path in paths {
-                guard path != nil else {
-                    continue
+
+            // Get the list of paths from the registered routes
+            let paths = NSMutableSet()
+            let routes:NSArray! = self.server.value(forKeyPath: "routes") as! NSArray
+            for ( route ) in routes {
+                let path:String? = (route as AnyObject).path
+                if ( path != nil ) {
+                    let pathURL:URL! = self.baseURL.appendingPathComponent(path!)
+                    paths.add(pathURL)
                 }
-                print(" * \(self.baseURL.appendingPathComponent(path!))")
+            }
+
+            let sortedPaths = paths.sortedArray(using: [NSSortDescriptor(key:"absoluteString", ascending:true)] )
+            print("Available paths are:")
+            for ( path ) in sortedPaths {
+                print(" * \(path)")
             }
         } else {
             print("Failed to start HTTP server. \(serverError!.localizedDescription)")
@@ -189,7 +206,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CRServerDelegate {
 
     func server(_ server: CRServer, didFinish request: CRRequest) {
         if ( LogRequests ) {
-            let env:NSDictionary! = request.value(forKey: "env") as? NSDictionary
+            let env:NSDictionary! = request.value(forKey: "env") as! NSDictionary
             NSLog(" * \(request.response!.connection!.remoteAddress) \(request.description) - \(request.response!.statusCode) - \(String(describing: env["HTTP_USER_AGENT"]!))")
         }
         SystemInfoHelper.addRequest()

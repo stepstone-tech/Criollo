@@ -6,7 +6,7 @@
 //  Copyright © 2015 Cătălin Stan. All rights reserved.
 //
 
-#import <Criollo/CRServer.h>
+#import "CRServer.h"
 
 @interface CRFCGIServer : CRServer
 

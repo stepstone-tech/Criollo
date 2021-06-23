@@ -6,8 +6,9 @@
 //  Copyright © 2016 Cătălin Stan. All rights reserved.
 //
 
-#import <Criollo/CRTypes.h>
-#import <Foundation/Foundation.h>
+#import "CRTypes.h"
+
+#define CRPathVarsKey       @"vars"
 
 @class CRRoute, CRRouteMatchingResult;
 
@@ -135,15 +136,6 @@ NS_ASSUME_NONNULL_BEGIN
  @param block The `CRRouteBlock` to be executed.
  */
 - (void)put:(NSString * _Nullable)path block:(CRRouteBlock)block;
-
-
-/**
- Adds a block to a pathspec, for the PATCH method, non-recursively.
-
- @param path  The path specification.
- @param block The `CRRouteBlock` to be executed.
- */
-- (void)patch:(NSString *)path block:(CRRouteBlock)block;
 
 /**
  Adds a block to a pathspec, for the DELETE method, non-recursively.

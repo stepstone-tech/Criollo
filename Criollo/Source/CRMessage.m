@@ -6,8 +6,7 @@
 //
 //
 
-#import <Criollo/CRMessage.h>
-
+#import "CRMessage.h"
 #import "CRMessage_Internal.h"
 
 NSString * NSStringFromCRHTTPVersion(CRHTTPVersion version) {

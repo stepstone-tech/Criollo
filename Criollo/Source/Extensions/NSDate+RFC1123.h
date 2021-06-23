@@ -8,10 +8,9 @@
 
 //  No obvious license attached
 
-#import <Foundation/Foundation.h>
-
 /**
  Convert RFC1123 format dates
+ 
  */
 
 @interface NSDate (RFC1123)

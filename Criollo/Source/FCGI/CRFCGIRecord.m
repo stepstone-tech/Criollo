@@ -8,10 +8,6 @@
 
 #import "CRFCGIRecord.h"
 
-UInt8 CRFCGIRecordHeaderLength = 8;
-
-NS_ASSUME_NONNULL_BEGIN
-
 NSString* NSStringFromCRFCGIVersion(CRFCGIVersion version) {
     NSString* versionName;
     switch (version) {
@@ -62,12 +58,12 @@ NSString* NSStringFromCRFCGIRecordType(CRFCGIRecordType recordType) {
     return recordTypeName;
 }
 
+NS_ASSUME_NONNULL_BEGIN
 @interface CRFCGIRecord ()
 
 @property (nonatomic, readonly, copy) NSData *headerProtocolData;
 
 @end
-
 NS_ASSUME_NONNULL_END
 
 @implementation CRFCGIRecord

@@ -1,26 +1,24 @@
 //
-//  CRRouter.m
+//  CRRoutingCenter.m
 //  Criollo
 //
 //  Created by Cătălin Stan on 19/07/16.
 //  Copyright © 2016 Cătălin Stan. All rights reserved.
 //
 
-#import <Criollo/CRRouter.h>
-
-#import <Criollo/CRMessage.h>
-#import <Criollo/CRRequest.h>
-#import <Criollo/CRResponse.h>
-#import <Criollo/CRServer.h>
-
-#import "CRMessage_Internal.h"
-#import "CRRequest_Internal.h"
-#import "CRResponse_Internal.h"
+#import "CRRouter.h"
+#import "CRRouter_Internal.h"
 #import "CRRoute.h"
 #import "CRRoute_Internal.h"
 #import "CRRouteMatchingResult.h"
 #import "CRRouteMatchingResult_Internal.h"
-#import "CRRouter_Internal.h"
+#import "CRServer.h"
+#import "CRMessage.h"
+#import "CRMessage_Internal.h"
+#import "CRRequest.h"
+#import "CRRequest_Internal.h"
+#import "CRResponse.h"
+#import "CRResponse_Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -34,68 +32,65 @@ NS_ASSUME_NONNULL_END
 
 @implementation CRRouter
 
-
 + (CRRouteBlock)errorHandlingBlockWithStatus:(NSUInteger)statusCode error:(NSError *)error {
-    return ^(CRRequest *request, CRResponse *response, CRRouteCompletionBlock completionHandler) { @autoreleasepool {
-        [self handleErrorResponse:statusCode error:error request:request response:response completion:completionHandler];
-    }};
-}
+    return ^(CRRequest *request, CRResponse *response, CRRouteCompletionBlock completionHandler) {
+        @autoreleasepool {
+            [response setStatusCode:statusCode description:nil];
+            [response setValue:@"text/plain; charset=utf-8" forHTTPHeaderField:@"Content-type"];
 
-+ (void)handleErrorResponse:(NSUInteger)statusCode error:(NSError *)error request:(CRRequest *)request response:(CRResponse *)response completion:(CRRouteCompletionBlock)completion {
-    
-    [response setStatusCode:statusCode description:nil];
-    [response setValue:@"text/plain; charset=utf-8" forHTTPHeaderField:@"Content-type"];
-    
-    NSMutableString* responseString = [NSMutableString stringWithCapacity:1024];
-    
+            NSMutableString* responseString = [NSMutableString string];
+
 #if DEBUG
-    NSError* err;
-    if (error == nil) {
-        NSURL *requestURL = request.URL;
-        NSMutableDictionary* info = [NSMutableDictionary dictionaryWithCapacity:2];
-        NSString* errorDescription;
-        switch (statusCode) {
-            case 404:
-                errorDescription = [NSString stringWithFormat:NSLocalizedString(@"No routes defined for “%@%@%@”",), NSStringFromCRHTTPMethod(request.method), requestURL.path, [requestURL.path hasSuffix:CRRoutePathSeparator] ? @"" : CRRoutePathSeparator];
-                break;
-        }
-        info[NSLocalizedDescriptionKey] = errorDescription;
-        info[NSURLErrorFailingURLErrorKey] = requestURL;
-        err = [NSError errorWithDomain:CRServerErrorDomain code:statusCode userInfo:info];
-    } else {
-        err = error;
-    }
-    
-    // Error details
-    [responseString appendFormat:@"%@ %lu\n%@\n", err.domain, (long)err.code, err.localizedDescription];
-    
-    // Error user-info
-    if ( err.userInfo.count > 0 ) {
-        [responseString appendString:@"\nUser Info\n"];
-        [err.userInfo enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-            [responseString appendFormat:@"%@: %@\n", key, obj];
-        }];
-    }
-    
-    // Stack trace
-    [responseString appendString:@"\nStack Trace\n"];
-    [[NSThread callStackSymbols] enumerateObjectsUsingBlock:^(NSString * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        [responseString appendFormat:@"%@\n", obj];
-    }];
+            NSError* err;
+            if (error == nil) {
+                NSMutableDictionary* mutableUserInfo = [NSMutableDictionary dictionaryWithCapacity:2];
+                NSString* errorDescription;
+                switch (statusCode) {
+                    case 404:
+                        errorDescription = [NSString stringWithFormat:NSLocalizedString(@"No routes defined for “%@%@%@”",), NSStringFromCRHTTPMethod(request.method), request.URL.path, [request.URL.path hasSuffix:CRPathSeparator] ? @"" : CRPathSeparator];
+                        break;
+                }
+                if ( errorDescription ) {
+                    mutableUserInfo[NSLocalizedDescriptionKey] = errorDescription;
+                }
+                mutableUserInfo[NSURLErrorFailingURLErrorKey] = request.URL;
+                err = [NSError errorWithDomain:CRServerErrorDomain code:statusCode userInfo:mutableUserInfo];
+            } else {
+                err = error;
+            }
+
+            // Error details
+            [responseString appendFormat:@"%@ %lu\n%@\n", err.domain, (long)err.code, err.localizedDescription];
+
+            // Error user-info
+            if ( err.userInfo.count > 0 ) {
+                [responseString appendString:@"\nUser Info\n"];
+                [err.userInfo enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+                    [responseString appendFormat:@"%@: %@\n", key, obj];
+                }];
+            }
+
+            // Stack trace
+            [responseString appendString:@"\nStack Trace\n"];
+            [[NSThread callStackSymbols] enumerateObjectsUsingBlock:^(NSString * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                [responseString appendFormat:@"%@\n", obj];
+            }];
 #else
-    [responseString appendFormat:@"Cannot %@ %@", NSStringFromCRHTTPMethod(request.method), request.URL.path];
+            [responseString appendFormat:@"Cannot %@ %@", NSStringFromCRHTTPMethod(request.method), request.URL.path];
 #endif
-    
-    [response setValue:[NSString stringWithFormat:@"%lu", (unsigned long)responseString.length] forHTTPHeaderField:@"Content-Length"];
-    [response sendString:responseString];
-    
-    completion();
+            
+            [response setValue:@(responseString.length).stringValue forHTTPHeaderField:@"Content-Length"];
+            [response sendString:responseString];
+            
+            completionHandler();
+        }
+    };
 }
 
 - (instancetype)init {
     self = [super init];
     if ( self != nil ) {
-        _routes = [NSMutableArray arrayWithCapacity:UINT8_MAX];
+        _routes = [NSMutableArray array];
         _notFoundBlock = [CRRouter errorHandlingBlockWithStatus:404 error:nil];
     }
     return self;
@@ -122,10 +117,6 @@ NS_ASSUME_NONNULL_END
 
 - (void)post:(NSString *)path block:(CRRouteBlock)block {
     [self add:path block:block recursive:NO method:CRHTTPMethodPost];
-}
-  
-- (void)patch:(NSString *)path block:(CRRouteBlock)block {
-    [self add:path block:block recursive:NO method:CRHTTPMethodPatch];
 }
 
 - (void)put:(NSString *)path block:(CRRouteBlock)block {
@@ -241,11 +232,11 @@ NS_ASSUME_NONNULL_END
     return routes;
 }
 
-- (void)executeRoutes:(NSArray<CRRouteMatchingResult *> *)routes request:(CRRequest *)request response:(CRResponse *)response withCompletion:(nonnull CRRouteCompletionBlock)completionBlock {
-    [self executeRoutes:routes request:request response:response withCompletion:completionBlock notFoundBlock:nil];
+- (void)executeRoutes:(NSArray<CRRouteMatchingResult *> *)routes forRequest:(CRRequest *)request response:(CRResponse *)response withCompletion:(nonnull CRRouteCompletionBlock)completionBlock {
+    [self executeRoutes:routes forRequest:request response:response withCompletion:completionBlock notFoundBlock:nil];
 }
 
-- (void)executeRoutes:(NSArray<CRRouteMatchingResult *> *)routes request:(CRRequest *)request response:(CRResponse *)response withCompletion:(nonnull CRRouteCompletionBlock)completionBlock notFoundBlock:(CRRouteBlock _Nullable)notFoundBlock {
+- (void)executeRoutes:(NSArray<CRRouteMatchingResult *> *)routes forRequest:(CRRequest *)request response:(CRResponse *)response withCompletion:(nonnull CRRouteCompletionBlock)completionBlock notFoundBlock:(CRRouteBlock _Nullable)notFoundBlock {
     if ( !notFoundBlock ) {
         notFoundBlock = [CRRouter errorHandlingBlockWithStatus:404 error:nil];
     }

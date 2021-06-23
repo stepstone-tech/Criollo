@@ -7,27 +7,18 @@
 //
 
 #import "CRHTTPConnection.h"
-
-#import <Criollo/CRApplication.h>
-#import <Criollo/CRHTTPServer.h>
-#import <Criollo/CRMessage.h>
-#import <Criollo/CRRequest.h>
-
-#import "CocoaAsyncSocket.h"
 #import "CRConnection_Internal.h"
-#import "CRHTTPConnection_Internal.h"
-#import "CRHTTPResponse.h"
+#import "GCDAsyncSocket.h"
+#import "CRApplication.h"
+#import "CRHTTPServer.h"
+#import "CRServer_Internal.h"
 #import "CRHTTPServerConfiguration.h"
+#import "CRMessage.h"
 #import "CRMessage_Internal.h"
+#import "CRRequest.h"
 #import "CRRequest_Internal.h"
 #import "CRResponse_Internal.h"
-#import "CRServer_Internal.h"
-#import "NSData+CRLF.h"
-
-typedef NS_ENUM(long, CRHTTPConnectionSocketTag) {
-    CRHTTPConnectionSocketTagBeginReadingRequest = 10,
-    CRHTTPConnectionSocketTagReadingRequestBody = 11,
-};
+#import "CRHTTPResponse.h"
 
 @interface CRHTTPConnection () {
     NSUInteger requestBodyLength;
@@ -42,6 +33,8 @@ typedef NS_ENUM(long, CRHTTPConnectionSocketTag) {
 #pragma mark - Data
 
 - (void)startReading {
+    [super startReading];
+
     requestBodyLength = 0;
     requestBodyReceivedBytesLength = 0;
 
@@ -49,52 +42,59 @@ typedef NS_ENUM(long, CRHTTPConnectionSocketTag) {
 
     // Read the request headers
     NSUInteger timeout = didPerformInitialRead ? config.CRConnectionKeepAliveTimeout : config.CRConnectionReadTimeout + config.CRHTTPConnectionReadHeaderTimeout;
-    [self.socket readDataToData:NSData.CRLFCRLF withTimeout:timeout maxLength:config.CRRequestMaxHeaderLength tag:CRHTTPConnectionSocketTagBeginReadingRequest];
+    [self.socket readDataToData:[CRConnection CRLFCRLFData] withTimeout:timeout maxLength:config.CRRequestMaxHeaderLength tag:CRHTTPConnectionSocketTagBeginReadingRequest];
 }
 
-- (void)didReceiveCompleteHeaders:(CRRequest *)request {
+- (void)didReceiveCompleteRequestHeaders {
     // Create ENV from HTTP headers
-    NSDictionary<NSString*, NSString*> *headers = request.allHTTPHeaderFields;
-    NSMutableDictionary* env = [NSMutableDictionary dictionaryWithCapacity:headers.count];
-    [request.allHTTPHeaderFields enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
-        NSString* headerName = [@"HTTP_" stringByAppendingString:[key.uppercaseString stringByReplacingOccurrencesOfString:@"-" withString:@"_"]];
-        env[headerName] = obj;
+    NSMutableDictionary* env = [NSMutableDictionary dictionary];
+    [self.currentRequest.allHTTPHeaderFields enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
+        @autoreleasepool {
+            NSString* headerName = [@"HTTP_" stringByAppendingString:[key.uppercaseString stringByReplacingOccurrencesOfString:@"-" withString:@"_"]];
+            [env setObject:obj forKey:headerName];
+        }
     }];
 
-    env[@"CONTENT_LENGTH"] = env[@"HTTP_CONTENT_LENGTH"];
-    env[@"CONTENT_TYPE"] = env[@"HTTP_CONTENT_TYPE"];
-    env[@"SERVER_NAME"] = env[@"HTTP_HOST"];
-    env[@"REQUEST_METHOD"] = NSStringFromCRHTTPMethod(request.method);
-    env[@"SERVER_PROTOCOL"] = NSStringFromCRHTTPVersion(request.version);
-    
-    GCDAsyncSocket *socket = self.socket;
-    env[@"SERVER_ADDR"] = socket.localHost;
-    env[@"SERVER_PORT"] = [NSString stringWithFormat:@"%hu", socket.localPort];
-    env[@"REMOTE_ADDR"] = socket.connectedHost;
-    env[@"REMOTE_PORT"] = [NSString stringWithFormat:@"%hu", socket.connectedPort];
-    
-    NSURL *requestURL = request.URL;
-    env[@"REQUEST_URI"] = requestURL.absoluteString;
-    env[@"DOCUMENT_URI"] = requestURL.path;
-    env[@"SCRIPT_NAME"] = requestURL.path;
-    env[@"QUERY_STRING"] = requestURL.query;
-    
-    request.env = env;
-    [request parseQueryString];
-    [request parseCookiesHeader];
-    [request parseRangeHeader];
+    if ( env[@"HTTP_CONTENT_LENGTH"] ) {
+        env[@"CONTENT_LENGTH"] = env[@"HTTP_CONTENT_LENGTH"];
+    }
+    if ( env[@"HTTP_CONTENT_TYPE"] ) {
+        env[@"CONTENT_TYPE"] = env[@"HTTP_CONTENT_TYPE"];
+    }
 
-    if (self.willDisconnect) {
+    if ( env[@"HTTP_HOST"]) {
+        env[@"SERVER_NAME"] = env[@"HTTP_HOST"];
+    }
+
+    env[@"REQUEST_METHOD"] = NSStringFromCRHTTPMethod(self.currentRequest.method);
+    env[@"SERVER_PROTOCOL"] = NSStringFromCRHTTPVersion(self.currentRequest.version);
+    env[@"REQUEST_URI"] = self.currentRequest.URL.absoluteString;
+    env[@"DOCUMENT_URI"] = self.currentRequest.URL.path;
+    env[@"SCRIPT_NAME"] = self.currentRequest.URL.path;
+    env[@"QUERY_STRING"] = self.currentRequest.URL.query;
+    env[@"REMOTE_ADDR"] = self.socket.connectedHost;
+    env[@"REMOTE_PORT"] = @(self.socket.connectedPort).stringValue;
+    env[@"SERVER_ADDR"] = self.socket.localHost;
+    env[@"SERVER_PORT"] = @(self.socket.localPort).stringValue;
+    
+    self.currentRequest.env = env;
+    [self.currentRequest parseQueryString];
+    [self.currentRequest parseCookiesHeader];
+    [self.currentRequest parseRangeHeader];
+
+    [super didReceiveCompleteRequestHeaders];
+
+    if ( self.willDisconnect ) {
         return;
     }
 
     CRHTTPServerConfiguration* config = (CRHTTPServerConfiguration*)self.server.configuration;
-    requestBodyLength = [env[@"CONTENT_LENGTH"] integerValue];
-    if (requestBodyLength > 0) {
+    requestBodyLength = [self.currentRequest valueForHTTPHeaderField:@"Content-Length"].integerValue;
+    if ( requestBodyLength > 0 ) {
         NSUInteger bytesToRead = requestBodyLength < config.CRRequestBodyBufferSize ? requestBodyLength : config.CRRequestBodyBufferSize;
         [self.socket readDataToLength:bytesToRead withTimeout:config.CRHTTPConnectionReadBodyTimeout tag:CRHTTPConnectionSocketTagReadingRequestBody];
     } else {
-        [self didReceiveCompleteRequest:request];
+        [self didReceiveCompleteRequest];
     }
 }
 
@@ -107,20 +107,22 @@ typedef NS_ENUM(long, CRHTTPConnectionSocketTag) {
 #pragma mark - GCDAsyncSocketDelegate
 
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData*)data withTag:(long)tag {
+
     didPerformInitialRead = YES;
     CRHTTPServerConfiguration* config = (CRHTTPServerConfiguration*)self.server.configuration;
 
     if ( tag == CRHTTPConnectionSocketTagBeginReadingRequest ) {
 
+        NSData* spaceData = [@" " dataUsingEncoding:NSUTF8StringEncoding];
         BOOL result = YES;
 
-        NSRange rangeOfFirstNewline = [data rangeOfData:NSData.CRLF options:0 range:NSMakeRange(0, data.length)];
-        NSRange rangeOfFirstSpace = [data rangeOfData:NSData.space options:0 range:NSMakeRange(0, rangeOfFirstNewline.location)];
+        NSRange rangeOfFirstNewline = [data rangeOfData:[CRConnection CRLFData] options:0 range:NSMakeRange(0, data.length)];
+        NSRange rangeOfFirstSpace = [data rangeOfData:spaceData options:0 range:NSMakeRange(0, rangeOfFirstNewline.location)];
         if (rangeOfFirstSpace.location != NSNotFound ) {
 
             NSRange methodRange = NSMakeRange(0, rangeOfFirstSpace.location);
             NSRange pathSearchRange = NSMakeRange(rangeOfFirstSpace.location + rangeOfFirstSpace.length, rangeOfFirstNewline.location - rangeOfFirstSpace.location - rangeOfFirstSpace.length);
-            NSRange rangeOfSecondSpace = [data rangeOfData:NSData.space options:0 range:pathSearchRange];
+            NSRange rangeOfSecondSpace = [data rangeOfData:spaceData options:0 range:pathSearchRange];
 
             if ( rangeOfSecondSpace.location != NSNotFound ) {
                 NSRange pathRange = NSMakeRange(pathSearchRange.location, rangeOfSecondSpace.location - pathSearchRange.location);
@@ -138,23 +140,23 @@ typedef NS_ENUM(long, CRHTTPConnectionSocketTag) {
                     NSRange rangeOfHostHeader = [data rangeOfData:[@"Host: " dataUsingEncoding:NSUTF8StringEncoding] options:0 range:NSMakeRange(0, data.length)];
 
                     if ( rangeOfHostHeader.location != NSNotFound || version == CRHTTPVersion1_0 ) {
-                        NSString* hostSpec = @"localhost";
-                        if (rangeOfHostHeader.location != NSNotFound) {
-                            NSRange rangeOfNewLineAfterHost = [data rangeOfData:NSData.CRLF options:0 range:NSMakeRange(rangeOfHostHeader.location + rangeOfHostHeader.length, data.length - rangeOfHostHeader.location - rangeOfHostHeader.length)];
-                            
-                            if ( rangeOfNewLineAfterHost.location == NSNotFound ) {
-                                rangeOfNewLineAfterHost.location = data.length - 1;
-                            }
-                            
-                            NSRange hostSpecRange = NSMakeRange(rangeOfHostHeader.location + rangeOfHostHeader.length, rangeOfNewLineAfterHost.location - rangeOfHostHeader.location - rangeOfHostHeader.length);
-                            hostSpec = [[NSString alloc] initWithBytesNoCopy:(void *)data.bytes + hostSpecRange.location length:hostSpecRange.length encoding:NSUTF8StringEncoding freeWhenDone:NO];
+                        NSRange rangeOfNewLineAfterHost = [data rangeOfData:[CRConnection CRLFData] options:0 range:NSMakeRange(rangeOfHostHeader.location + rangeOfHostHeader.length, data.length - rangeOfHostHeader.location - rangeOfHostHeader.length)];
+
+                        if ( rangeOfNewLineAfterHost.location == NSNotFound ) {
+                            rangeOfNewLineAfterHost.location = data.length - 1;
                         }
+
+                        NSRange hostSpecRange = NSMakeRange(rangeOfHostHeader.location + rangeOfHostHeader.length, rangeOfNewLineAfterHost.location - rangeOfHostHeader.location - rangeOfHostHeader.length);
+                        NSString* hostSpec = [[NSString alloc] initWithBytesNoCopy:(void *)data.bytes + hostSpecRange.location length:hostSpecRange.length encoding:NSUTF8StringEncoding freeWhenDone:NO];
 
                         // TODO: request.URL should be parsed using no memcpy and using the actual scheme
                         NSURL* URL = [NSURL URLWithString:[NSString stringWithFormat:@"http%@://%@%@", ((CRHTTPServer *)self.server).isSecure ? @"s" : @"", hostSpec, pathSpec]];
                         CRRequest* request = [[CRRequest alloc] initWithMethod:CRHTTPMethodMake(methodSpec) URL:URL version:CRHTTPVersionMake(versionSpec) connection:self];
-                        [self addRequest:request];
-                        self.requestBeingReceived = request;
+                        CRHTTPConnection * __weak connection = self;
+                        dispatch_async(self.isolationQueue, ^{
+                            [connection.requests addObject:request];
+                        });
+                        self.currentRequest = request;
                     } else {
                         result = NO;
                     }
@@ -168,21 +170,21 @@ typedef NS_ENUM(long, CRHTTPConnectionSocketTag) {
             result = NO;
         }
 
-        if (!result) {
+        if ( !result ) {
             [self.socket disconnect];
             return;
         }
 
         NSRange remainingDataRange = NSMakeRange(rangeOfFirstNewline.location + rangeOfFirstNewline.length, data.length - rangeOfFirstNewline.location - rangeOfFirstNewline.length);
         NSData* remainingData = [NSData dataWithBytesNoCopy:(void *)data.bytes + remainingDataRange.location length:remainingDataRange.length freeWhenDone:NO];
-        if (![self.requestBeingReceived appendData:remainingData]) {
+        if ( ! [self.currentRequest appendData:remainingData] ) {
             [self.socket disconnect];
             return;
         }
 
         // We've read the request headers
-        if (self.requestBeingReceived.headersComplete) {
-            [self didReceiveCompleteHeaders:self.requestBeingReceived];
+        if ( self.currentRequest.headersComplete ) {
+            [self didReceiveCompleteRequestHeaders];
         } else {
             [self.socket disconnect];
             return;
@@ -192,14 +194,14 @@ typedef NS_ENUM(long, CRHTTPConnectionSocketTag) {
 
         // We are receiving data
         requestBodyReceivedBytesLength += data.length;
-        [self didReceiveBodyData:data request:self.requestBeingReceived];
+        [self didReceiveRequestBodyData:data];
 
         if (requestBodyReceivedBytesLength < requestBodyLength) {
             NSUInteger requestBodyLeftBytesLength = requestBodyLength - requestBodyReceivedBytesLength;
             NSUInteger bytesToRead = requestBodyLeftBytesLength < config.CRRequestBodyBufferSize ? requestBodyLeftBytesLength : config.CRRequestBodyBufferSize;
             [self.socket readDataToLength:bytesToRead withTimeout:config.CRHTTPConnectionReadBodyTimeout tag:CRHTTPConnectionSocketTagReadingRequestBody];
         } else {
-            [self didReceiveCompleteRequest:self.requestBeingReceived];
+            [self didReceiveCompleteRequest];
         }
     }
 }

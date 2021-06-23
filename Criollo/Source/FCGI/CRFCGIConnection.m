@@ -6,97 +6,20 @@
 //  Copyright © 2015 Cătălin Stan. All rights reserved.
 //
 
-#import "CRFCGIConnection.h"
-
-#import <Criollo/CRApplication.h>
-#import <Criollo/CRFCGIServer.h>
-
-#import "CocoaAsyncSocket.h"
-#import "CRConnection_Internal.h"
-#import "CRFCGIRecord.h"
-#import "CRFCGIRequest.h"
-#import "CRFCGIResponse.h"
-#import "CRFCGIServerConfiguration.h"
-#import "CRRequest_Internal.h"
 #import "CRResponse_Internal.h"
+#import "CRFCGIResponse.h"
+#import "CRFCGIConnection.h"
+#import "CRConnection_Internal.h"
+#import "CRApplication.h"
 #import "CRServer_Internal.h"
-#import "NSData+CRLF.h"
-
-typedef NS_ENUM(long, CRFCGIConnectionSocketTag) {
-    CRFCGIConnectionSocketTagReadRecordHeader = 11,
-    CRFCGIConnectionSocketTagReadRecordContent = 12,
-};
+#import "CRFCGIServer.h"
+#import "CRFCGIServerConfiguration.h"
+#import "CRFCGIRequest.h"
+#import "CRRequest_Internal.h"
+#import "CRFCGIRecord.h"
+#import "GCDAsyncSocket.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-// Refer to http://www.fastcgi.com/drupal/node/6?q=node/22#S3.4 for rules in parsing dictionaries
-NS_INLINE void ParseFCGIValuePair(NSData *paramsData, NSUInteger *offset, NSString **name, NSString **value, NSUInteger *_Nullable bytesRead) {
-    NSUInteger initialOffset = *offset;
-    
-    UInt8 pos0, pos1, pos4;
-    UInt8 valueLengthB3, valueLengthB2, valueLengthB1, valueLengthB0;
-    UInt8 nameLengthB3, nameLengthB2, nameLengthB1, nameLengthB0;
-    UInt32 nameLength, valueLength;
-    
-    const char *bytes = paramsData.bytes;
-    
-    pos0 = bytes[*offset + 0];
-    pos1 = bytes[*offset + 1];
-    pos4 = bytes[*offset + 4];
-    
-    if (pos0 >> 7 == 0) {
-        
-        // NameValuePair11 or 14
-        nameLength = pos0;
-        
-        if (pos1 >> 7 == 0) {
-            // NameValuePair11
-            valueLength = pos1;
-            *offset += 2;
-        } else {
-            //NameValuePair14
-            valueLengthB3 = bytes[*offset + 1];
-            valueLengthB2 = bytes[*offset + 2];
-            valueLengthB1 = bytes[*offset + 3];
-            valueLengthB0 = bytes[*offset + 4];
-            valueLength = ((valueLengthB3 & 0x7f) << 24) + (valueLengthB2 << 16) + (valueLengthB1 << 8) + valueLengthB0;
-            *offset += 5;
-        }
-        
-    } else {
-        
-        // NameValuePair41 or 44
-        nameLengthB3 = bytes[*offset + 1];
-        nameLengthB2 = bytes[*offset + 2];
-        nameLengthB1 = bytes[*offset + 3];
-        nameLengthB0 = bytes[*offset + 4];
-        nameLength = ((nameLengthB3 & 0x7f) << 24) + (nameLengthB2 << 16) + (nameLengthB1 << 8) + nameLengthB0;
-        
-        if (pos4 >> 7 == 0) {
-            //NameValuePair41
-            valueLength = pos4;
-            *offset += 5;
-        } else {
-            //NameValuePair44
-            valueLengthB3 = bytes[*offset + 4];
-            valueLengthB2 = bytes[*offset + 5];
-            valueLengthB1 = bytes[*offset + 6];
-            valueLengthB0 = bytes[*offset + 7];
-            valueLength = ((valueLengthB3 & 0x7f) << 24) + (valueLengthB2 << 16) + (valueLengthB1 << 8) + valueLengthB0;
-            *offset += 8;
-        }
-    }
-    
-    *name = [[NSString alloc] initWithBytesNoCopy:(void *)paramsData.bytes + *offset length:nameLength encoding:NSUTF8StringEncoding freeWhenDone:NO];
-    *offset += nameLength;
-    
-    *value = [[NSString alloc] initWithBytes:(void *)paramsData.bytes + *offset length:valueLength encoding:NSUTF8StringEncoding];
-    *offset += valueLength;
-    
-    if (bytesRead != NULL) {
-        *bytesRead = *offset - initialOffset;
-    }
-};
 
 @interface CRFCGIConnection () {
     NSUInteger currentRequestBodyLength;
@@ -122,6 +45,8 @@ NS_ASSUME_NONNULL_END
 #pragma mark - Data
 
 - (void)startReading {
+    [super startReading];
+
     currentRequestBodyLength = 0;
     currentRequestBodyReceivedBytesLength = 0;
 
@@ -138,10 +63,11 @@ NS_ASSUME_NONNULL_END
     [self.socket readDataToLength:CRFCGIRecordHeaderLength withTimeout:timeout tag:CRFCGIConnectionSocketTagReadRecordHeader];
 }
 
-- (void)didReceiveCompleteHeaders:(CRRequest *)request {
+- (void)didReceiveCompleteRequestHeaders {
+
     // Create HTTP headers from FCGI Params
     NSMutableData* headersData = [NSMutableData data];
-    [request.env enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
+    [self.currentRequest.env enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
         @autoreleasepool {
             if ( ![key hasPrefix:@"HTTP_"] ) {
                 return;
@@ -160,14 +86,16 @@ NS_ASSUME_NONNULL_END
 
             NSData* headerData = [[NSString stringWithFormat:@"%@: %@", headerName, obj] dataUsingEncoding:NSUTF8StringEncoding];
             [headersData appendData:headerData];
-            [headersData appendData:NSData.CRLF];
+            [headersData appendData:[CRConnection CRLFData]];
         }
     }];
 
-    [request appendData:headersData];
-    [request appendData:NSData.CRLF];
+    [self.currentRequest appendData:headersData];
+    [self.currentRequest appendData:[CRConnection CRLFData]];
 
-    currentRequestBodyLength = [request.env[@"CONTENT_LENGTH"] integerValue];
+    [super didReceiveCompleteRequestHeaders];
+
+    currentRequestBodyLength = [self.currentRequest.env[@"CONTENT_LENGTH"] integerValue];
     CRFCGIServerConfiguration* config = (CRFCGIServerConfiguration*)self.server.configuration;
     [self.socket readDataToLength:CRFCGIRecordHeaderLength withTimeout:config.CRFCGIConnectionReadRecordTimeout tag:CRFCGIConnectionSocketTagReadRecordHeader];
 }
@@ -181,12 +109,86 @@ NS_ASSUME_NONNULL_END
 #pragma mark - Record Processing
 
 - (void)appendParamsFromData:(NSData*)paramsData length:(NSUInteger)dataLength {
-    NSUInteger startOffset = 0;
 
-    while (startOffset < dataLength) {
-        NSString *paramName, *paramValue;
-        ParseFCGIValuePair(paramsData, &startOffset, &paramName, &paramValue, NULL);
-        if (paramName.length != 0 && paramValue) {
+    void(^parseValuePairBlock)(NSUInteger*, NSString**, NSString**, NSUInteger*) = ^(NSUInteger* offset, NSString** name, NSString** value, NSUInteger* bytesRead) {
+
+        @autoreleasepool {
+            // Refer to http://www.fastcgi.com/drupal/node/6?q=node/22#S3.4 for rules in parsing dictionaries
+
+            NSUInteger initialOffset = *offset;
+
+            UInt8 pos0, pos1, pos4;
+            UInt8 valueLengthB3, valueLengthB2, valueLengthB1, valueLengthB0;
+            UInt8 nameLengthB3, nameLengthB2, nameLengthB1, nameLengthB0;
+            UInt32 nameLength, valueLength;
+
+            const char *bytes = paramsData.bytes;
+
+            pos0 = bytes[*offset + 0];
+            pos1 = bytes[*offset + 1];
+            pos4 = bytes[*offset + 4];
+
+            if (pos0 >> 7 == 0) {
+
+                // NameValuePair11 or 14
+                nameLength = pos0;
+
+                if (pos1 >> 7 == 0) {
+                    // NameValuePair11
+                    valueLength = pos1;
+                    *offset += 2;
+                } else {
+                    //NameValuePair14
+                    valueLengthB3 = bytes[*offset + 1];
+                    valueLengthB2 = bytes[*offset + 2];
+                    valueLengthB1 = bytes[*offset + 3];
+                    valueLengthB0 = bytes[*offset + 4];
+                    valueLength = ((valueLengthB3 & 0x7f) << 24) + (valueLengthB2 << 16) + (valueLengthB1 << 8) + valueLengthB0;
+                    *offset += 5;
+                }
+
+            } else {
+
+                // NameValuePair41 or 44
+                nameLengthB3 = bytes[*offset + 1];
+                nameLengthB2 = bytes[*offset + 2];
+                nameLengthB1 = bytes[*offset + 3];
+                nameLengthB0 = bytes[*offset + 4];
+                nameLength = ((nameLengthB3 & 0x7f) << 24) + (nameLengthB2 << 16) + (nameLengthB1 << 8) + nameLengthB0;
+
+                if (pos4 >> 7 == 0) {
+                    //NameValuePair41
+                    valueLength = pos4;
+                    *offset += 5;
+                } else {
+                    //NameValuePair44
+                    valueLengthB3 = bytes[*offset + 4];
+                    valueLengthB2 = bytes[*offset + 5];
+                    valueLengthB1 = bytes[*offset + 6];
+                    valueLengthB0 = bytes[*offset + 7];
+                    valueLength = ((valueLengthB3 & 0x7f) << 24) + (valueLengthB2 << 16) + (valueLengthB1 << 8) + valueLengthB0;
+                    *offset += 8;
+                }
+            }
+
+            *name = [[NSString alloc] initWithBytesNoCopy:(void *)paramsData.bytes + *offset length:nameLength encoding:NSUTF8StringEncoding freeWhenDone:NO];
+            *offset += nameLength;
+            
+            *value = [[NSString alloc] initWithBytes:(void *)paramsData.bytes + *offset length:valueLength encoding:NSUTF8StringEncoding];
+            *offset += valueLength;
+            
+            if ( bytesRead != NULL ) {
+                *bytesRead = *offset - initialOffset;
+            }
+        }
+    };
+
+    NSUInteger startOffset = 0;
+    NSString *paramName, *paramValue;
+
+    while ( startOffset < dataLength ) {
+        parseValuePairBlock(&startOffset, &paramName, &paramValue, NULL);
+        if ( paramName.length != 0 && paramValue != nil ) {
             currentRequestParams[paramName] = paramValue;
         }
     }
@@ -206,6 +208,8 @@ NS_ASSUME_NONNULL_END
         case CRFCGIConnectionSocketTagReadRecordHeader:
             currentRecord = [[CRFCGIRecord alloc] initWithHeaderData:data];
 
+//            NSLog(@" * Header: %@ %hu", NSStringFromCRFCGIRecordType(currentRecord.type), currentRecord.contentLength);
+
             // Process the record header
             if (currentRecord.contentLength == 0) {
 
@@ -216,33 +220,27 @@ NS_ASSUME_NONNULL_END
                         NSString* methodSpec = currentRequestParams[@"REQUEST_METHOD"];
                         NSString* path = currentRequestParams[@"DOCUMENT_URI"];
                         NSString* versionSpec = currentRequestParams[@"SERVER_PROTOCOL"];
-                        CRHTTPVersion version = CRHTTPVersionMake(versionSpec);
-                        NSString* host;
-                        if (!(host = currentRequestParams[@"HTTP_HOST"])) {
-                            if (version != CRHTTPVersion1_0) {
-                                [sock disconnectAfterWriting];
-                                break;
-                            }
-                            host = @"localhost";
-                        }
+                        NSString* host = currentRequestParams[@"HTTP_HOST"];
 
                         NSURL* URL = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@%@", host, path]];
-                        CRFCGIRequest* request = [[CRFCGIRequest alloc] initWithMethod:CRHTTPMethodMake(methodSpec) URL:URL version:version connection:self env:currentRequestParams];
+                        CRFCGIRequest* request = [[CRFCGIRequest alloc] initWithMethod:CRHTTPMethodMake(methodSpec) URL:URL version:CRHTTPVersionMake(versionSpec) connection:self env:currentRequestParams];
+                        CRFCGIConnection * __weak connection = self;
+                        dispatch_async(self.isolationQueue, ^{
+                            [connection.requests addObject:request];
+                        });
                         request.requestID = currentRequestID;
                         request.requestRole = currentRequestRole;
                         request.requestFlags = currentRequestFlags;
-                        
-                        [self addRequest:request];
-                        self.requestBeingReceived = request;
-                        
-                        [self didReceiveCompleteHeaders:request];
+                        self.currentRequest = request;
+
+                        [self didReceiveCompleteRequestHeaders];
                     }
                         break;
 
                     case CRFCGIRecordTypeStdIn: {
 
                         if ( currentRequestBodyLength == currentRequestBodyReceivedBytesLength ) {
-                            [self didReceiveCompleteRequest:self.requestBeingReceived];
+                            [self didReceiveCompleteRequest];
                         } else {
                             [self.socket disconnectAfterWriting];
                         }
@@ -263,6 +261,9 @@ NS_ASSUME_NONNULL_END
             break;
 
         case CRFCGIConnectionSocketTagReadRecordContent:
+
+//            NSLog(@" * Content: %@ %lu", NSStringFromCRFCGIRecordType(currentRecord.type), data.length);
+
             // Process the header content data
             switch (currentRecord.type) {
                 case CRFCGIRecordTypeBeginRequest:
@@ -292,7 +293,7 @@ NS_ASSUME_NONNULL_END
                 case CRFCGIRecordTypeStdIn: {
 
                     NSData* currentRecordContentData = [NSData dataWithBytesNoCopy:(void *)data.bytes length:currentRecord.contentLength freeWhenDone:NO];
-                    [self didReceiveBodyData:currentRecordContentData request:self.requestBeingReceived];
+                    [self didReceiveRequestBodyData:currentRecordContentData];
 
                     currentRequestBodyReceivedBytesLength += currentRecord.contentLength;
 

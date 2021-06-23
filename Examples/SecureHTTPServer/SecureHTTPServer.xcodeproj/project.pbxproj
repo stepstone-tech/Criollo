@@ -7,15 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4A22CEB61F99554B00BA1DD9 /* SecureHTTPServer.bundle.pem in Resources */ = {isa = PBXBuildFile; fileRef = 4A22CEB31F99554A00BA1DD9 /* SecureHTTPServer.bundle.pem */; };
+		4A22CEB71F99554B00BA1DD9 /* SecureHTTPServer.key.pem in Resources */ = {isa = PBXBuildFile; fileRef = 4A22CEB41F99554A00BA1DD9 /* SecureHTTPServer.key.pem */; };
 		4A22CEB81F99554B00BA1DD9 /* SecureHTTPServer.p12 in Resources */ = {isa = PBXBuildFile; fileRef = 4A22CEB51F99554A00BA1DD9 /* SecureHTTPServer.p12 */; };
 		4AC7109D1F994D6000CCE070 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AC7109C1F994D6000CCE070 /* AppDelegate.swift */; };
 		4AC7109F1F994D6000CCE070 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AC7109E1F994D6000CCE070 /* ViewController.swift */; };
 		4AC710A21F994D6000CCE070 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4AC710A01F994D6000CCE070 /* Main.storyboard */; };
 		4AC710A41F994D6000CCE070 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4AC710A31F994D6000CCE070 /* Assets.xcassets */; };
 		4AC710A71F994D6000CCE070 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4AC710A51F994D6000CCE070 /* LaunchScreen.storyboard */; };
+		F59B00B8BCCDA0047F72D4A5 /* Pods_SecureHTTPServer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BD4B9C2D8563518E8B72435D /* Pods_SecureHTTPServer.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0A5758F3D38605C8F5872910 /* Pods-SecureHTTPServer.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecureHTTPServer.release.xcconfig"; path = "Pods/Target Support Files/Pods-SecureHTTPServer/Pods-SecureHTTPServer.release.xcconfig"; sourceTree = "<group>"; };
+		4A22CEB31F99554A00BA1DD9 /* SecureHTTPServer.bundle.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SecureHTTPServer.bundle.pem; sourceTree = "<group>"; };
+		4A22CEB41F99554A00BA1DD9 /* SecureHTTPServer.key.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SecureHTTPServer.key.pem; sourceTree = "<group>"; };
 		4A22CEB51F99554A00BA1DD9 /* SecureHTTPServer.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = SecureHTTPServer.p12; sourceTree = "<group>"; };
 		4AC710991F994D6000CCE070 /* SecureHTTPServer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SecureHTTPServer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4AC7109C1F994D6000CCE070 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -24,6 +30,8 @@
 		4AC710A31F994D6000CCE070 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4AC710A61F994D6000CCE070 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4AC710A81F994D6000CCE070 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BD4B9C2D8563518E8B72435D /* Pods_SecureHTTPServer.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SecureHTTPServer.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE6703EB4B40D8BBC776DC2F /* Pods-SecureHTTPServer.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecureHTTPServer.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SecureHTTPServer/Pods-SecureHTTPServer.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,6 +39,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F59B00B8BCCDA0047F72D4A5 /* Pods_SecureHTTPServer.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -40,6 +49,8 @@
 		4A22CEB21F99554A00BA1DD9 /* Certificates */ = {
 			isa = PBXGroup;
 			children = (
+				4A22CEB31F99554A00BA1DD9 /* SecureHTTPServer.bundle.pem */,
+				4A22CEB41F99554A00BA1DD9 /* SecureHTTPServer.key.pem */,
 				4A22CEB51F99554A00BA1DD9 /* SecureHTTPServer.p12 */,
 			);
 			path = Certificates;
@@ -51,6 +62,8 @@
 				4AC7109B1F994D6000CCE070 /* SecureHTTPServer */,
 				4A22CEB21F99554A00BA1DD9 /* Certificates */,
 				4AC7109A1F994D6000CCE070 /* Products */,
+				7C48492BF3BF709030DCCD8E /* Pods */,
+				FCA8634FB6CADF47A208AA21 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -75,6 +88,23 @@
 			path = SecureHTTPServer;
 			sourceTree = "<group>";
 		};
+		7C48492BF3BF709030DCCD8E /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				EE6703EB4B40D8BBC776DC2F /* Pods-SecureHTTPServer.debug.xcconfig */,
+				0A5758F3D38605C8F5872910 /* Pods-SecureHTTPServer.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		FCA8634FB6CADF47A208AA21 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				BD4B9C2D8563518E8B72435D /* Pods_SecureHTTPServer.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -82,9 +112,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4AC710AB1F994D6000CCE070 /* Build configuration list for PBXNativeTarget "SecureHTTPServer" */;
 			buildPhases = (
+				7D707F053E00E4CFBE64B005 /* [CP] Check Pods Manifest.lock */,
 				4AC710951F994D5F00CCE070 /* Sources */,
 				4AC710961F994D5F00CCE070 /* Frameworks */,
 				4AC710971F994D5F00CCE070 /* Resources */,
+				B5D60050C67C9BCFF50E3D80 /* [CP] Embed Pods Frameworks */,
+				AB5CAF07984B6742ECB1E47A /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -102,12 +135,11 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0900;
-				LastUpgradeCheck = 1240;
+				LastUpgradeCheck = 0900;
 				ORGANIZATIONNAME = "Cătălin Stan";
 				TargetAttributes = {
 					4AC710981F994D5F00CCE070 = {
 						CreatedOnToolsVersion = 9.0.1;
-						LastSwiftMigration = 1140;
 						ProvisioningStyle = Manual;
 					};
 				};
@@ -137,12 +169,72 @@
 			files = (
 				4AC710A71F994D6000CCE070 /* LaunchScreen.storyboard in Resources */,
 				4AC710A41F994D6000CCE070 /* Assets.xcassets in Resources */,
+				4A22CEB71F99554B00BA1DD9 /* SecureHTTPServer.key.pem in Resources */,
+				4A22CEB61F99554B00BA1DD9 /* SecureHTTPServer.bundle.pem in Resources */,
 				4A22CEB81F99554B00BA1DD9 /* SecureHTTPServer.p12 in Resources */,
 				4AC710A21F994D6000CCE070 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		7D707F053E00E4CFBE64B005 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-SecureHTTPServer-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		AB5CAF07984B6742ECB1E47A /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SecureHTTPServer/Pods-SecureHTTPServer-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B5D60050C67C9BCFF50E3D80 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-SecureHTTPServer/Pods-SecureHTTPServer-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/CSSystemInfoHelper/CSSystemInfoHelper.framework",
+				"${BUILT_PRODUCTS_DIR}/CocoaAsyncSocket/CocoaAsyncSocket.framework",
+				"${BUILT_PRODUCTS_DIR}/Criollo/Criollo.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CSSystemInfoHelper.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CocoaAsyncSocket.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Criollo.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SecureHTTPServer/Pods-SecureHTTPServer-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4AC710951F994D5F00CCE070 /* Sources */ = {
@@ -190,7 +282,6 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -198,10 +289,8 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -227,7 +316,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -250,7 +339,6 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -258,10 +346,8 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -281,7 +367,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
@@ -291,6 +377,7 @@
 		};
 		4AC710AC1F994D6000CCE070 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = EE6703EB4B40D8BBC776DC2F /* Pods-SecureHTTPServer.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "";
@@ -300,13 +387,14 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = io.criollo.SecureHTTPServer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
 		4AC710AD1F994D6000CCE070 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0A5758F3D38605C8F5872910 /* Pods-SecureHTTPServer.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "";
@@ -316,7 +404,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = io.criollo.SecureHTTPServer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
