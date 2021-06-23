@@ -242,7 +242,7 @@ NS_ASSUME_NONNULL_END
             [server.delegate server:server didCloseConnection:connection];
         });
     }
-    dispatch_async(self.isolationQueue, ^(){
+    dispatch_async(dispatch_get_main_queue(), ^(){
         [server.connections removeObject:connection];
     });
 }
